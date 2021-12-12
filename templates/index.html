@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>OTP Verification Demo</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <script>
+        let code;
+        let phoneSent = false;
+        function verification() {
+            let phoneNumber = document.getElementById('phone_number_field').value;
+            if (phoneNumber === ""){
+                alert("You need to input a phone number!")
+                return false;
+            }
+            if (!phoneSent) {
+                console.log(phoneNumber);
+                sendPhoneNumber(phoneNumber);
+            } else {
+                let userCode = document.getElementById('otp_code_field').value;
+                verifyOTPCode(userCode);
+            }
+        }
+        function sendPhoneNumber(number) {
+            $.ajax({
+                type: "POST",
+                url: '/getOTP',
+                data: {"phone-number": number},
+                success: function (data) {
+                    console.log(data);
+                    if (data.status) {
+                        alert(data.status);
+                    } else {
+                        code = data.code;
+                        let element = document.getElementById("hidden");
+                        element.classList.remove("hidden");
+                        element.classList.add("visible");
+                        phoneSent = true;
+                    }
+                },
+                error: function (data){
+                    console.log(data);
+                }
+            });
+        }
+        function verifyOTPCode(code){
+            $.ajax({
+                type: "POST",
+                url: '/verifyOTP',
+                data: {"verification-code": code},
+                success: function (data) {
+                    let status = data.status;
+                    switch (status){
+                        case "success":
+                            console.log("Code is right!");
+                            let form = document.getElementById('verification-form');
+                            form.classList.add('display__none');
+                            let message = document.getElementById('message');
+                            message.activeHtml = "Success!";
+                            message.classList.remove('display__none');
+                            break;
+                        case "wrong code":
+                            alert("The code you entered is wrong!");
+                            break;
+                        case "no code provided":
+                            alert("You did not enter a code!");
+                            break;
+                    }
+                },
+                error: function (data){
+                    console.log(data);
+                }
+            });
+        }
+    </script>
+    <div class="main">
+        <div class="container">
+            <div id="verification-form">
+                <h1 style="color: #ff73b3;">OTP Verification Demo</h1>
+                <input type="text" name="phone-number" placeholder="Input phone number" id="phone_number_field"/>
+                <div class="hidden" id="hidden">
+                    <input type="text" name="verification-code" placeholder="Input verification code" id="otp_code_field"/>
+                </div>
+                <button onclick="verification()">Submit</button>
+            </div>
+            <h1 id="message" class="display__none">Code is succesful</h1>
+        </div>
+
+    </div>
+</body>
+</html>

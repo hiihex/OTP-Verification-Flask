@@ -1,8 +1,8 @@
 from twilio.rest import Client
 from random import randint
 
-ACCOUNT_SID = "ACf4c1705b70b6e8a90ef1c30df924b9e8"
-AUTH_TOKEN = "2d62fc35d9f67eb20ad8d47f61d9930f"
+ACCOUNT_SID = "twilio sid"
+AUTH_TOKEN = "twilio auth token"
 
 twilio_client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
